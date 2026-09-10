@@ -1,0 +1,43 @@
+# Pinned to the versions this project was actually built and validated with
+# (venv/ on the development machine). Install with:
+#
+#     python -m venv venv
+#     venv/Scripts/activate        # Windows;  source venv/bin/activate on Unix
+#     pip install -r requirements.txt
+#     python -c "import nltk; nltk.download('punkt'); nltk.download('stopwords'); nltk.download('wordnet')"
+
+# --- core ---
+pandas==2.2.2
+numpy==1.26.4
+scipy==1.15.3
+joblib==1.5.3
+
+# --- modelling ---
+# NOTE: scikit-learn is deliberately pinned to 1.4.2. The stage 2 URL model in
+# src/stage2_url/ was pickled under scikit-learn 1.8.0 on a different machine,
+# and the two versions store fitted TF-IDF weights under different attribute
+# names. src/pipeline/layer2_url.py rebuilds the missing `_idf_diag` at load
+# time so the scores are unchanged - see the comment there before upgrading.
+scikit-learn==1.4.2
+xgboost==3.2.0
+gensim==4.4.0
+
+# --- text processing ---
+nltk==3.8.1
+
+# --- layer 2 fetches each URL live and parses its HTML ---
+requests==2.34.2
+beautifulsoup4==4.15.0
+
+# --- demo app ---
+streamlit==1.35.0
+
+# --- EDA / figures (notebooks/eda.ipynb) ---
+matplotlib==3.8.4
+seaborn==0.13.2
+wordcloud==1.9.3
+
+# --- dataset acquisition (scripts/utils/) ---
+datasets==2.19.0
+kaggle==1.6.17
+python-dotenv==1.0.1

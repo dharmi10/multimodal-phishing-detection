@@ -1,0 +1,10 @@
+venv/
+__pycache__/
+*.pyc
+.env
+logs/
+
+# 170 MB of regenerable feature matrices, including a 106 MB file that
+# GitHub rejects outright. Nothing at runtime reads these — only the
+# bake-off (scripts 04-06). Rebuild: python scripts/04_build_tfidf_features.py
+data/features/

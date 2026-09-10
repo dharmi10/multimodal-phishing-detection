@@ -1,0 +1,102 @@
+{
+  "TFIDF": {
+    "LR": {
+      "best_params": {
+        "C": 10
+      },
+      "accuracy": 0.9904347826086957,
+      "precision": 0.9603448275862069,
+      "recall": 0.982363315696649,
+      "f1": 0.9712292938099389
+    },
+    "NB": {
+      "best_params": {
+        "var_smoothing": 1e-09
+      },
+      "accuracy": 0.8675362318840579,
+      "precision": 0.5669099756690997,
+      "recall": 0.8218694885361552,
+      "f1": 0.6709863210943124
+    },
+    "SVM": {
+      "best_params": {
+        "C": 10,
+        "kernel": "rbf"
+      },
+      "accuracy": 0.9973913043478261,
+      "precision": 1.0,
+      "recall": 0.9841269841269841,
+      "f1": 0.992
+    },
+    "RF": {
+      "best_params": {
+        "max_depth": 20,
+        "n_estimators": 200
+      },
+      "accuracy": 0.9918840579710145,
+      "precision": 1.0,
+      "recall": 0.9506172839506173,
+      "f1": 0.9746835443037974
+    },
+    "XGB": {
+      "best_params": {
+        "max_depth": 4,
+        "n_estimators": 200
+      },
+      "accuracy": 0.9959420289855072,
+      "precision": 0.9946332737030411,
+      "recall": 0.9805996472663139,
+      "f1": 0.9875666074600356
+    }
+  },
+  "W2V": {
+    "LR": {
+      "best_params": {
+        "C": 1
+      },
+      "accuracy": 0.9744927536231884,
+      "precision": 0.8907014681892332,
+      "recall": 0.9629629629629629,
+      "f1": 0.9254237288135593
+    },
+    "NB": {
+      "best_params": {
+        "var_smoothing": 1e-09
+      },
+      "accuracy": 0.9794202898550725,
+      "precision": 0.9275862068965517,
+      "recall": 0.9488536155202821,
+      "f1": 0.9380993897122929
+    },
+    "SVM": {
+      "best_params": {
+        "C": 10,
+        "kernel": "rbf"
+      },
+      "accuracy": 0.9991304347826087,
+      "precision": 0.9982332155477032,
+      "recall": 0.9964726631393298,
+      "f1": 0.9973521624007061
+    },
+    "RF": {
+      "best_params": {
+        "max_depth": 20,
+        "n_estimators": 100
+      },
+      "accuracy": 0.9973913043478261,
+      "precision": 1.0,
+      "recall": 0.9841269841269841,
+      "f1": 0.992
+    },
+    "XGB": {
+      "best_params": {
+        "max_depth": 4,
+        "n_estimators": 200
+      },
+      "accuracy": 0.9985507246376811,
+      "precision": 1.0,
+      "recall": 0.9911816578483245,
+      "f1": 0.995571302037201
+    }
+  }
+}
