@@ -29,6 +29,15 @@ nltk==3.8.1
 requests==2.34.2
 beautifulsoup4==4.15.0
 
+# --- layer 4 decodes QR codes and OCRs text out of images ---
+# NOTE: pytesseract is only a wrapper. The Tesseract binary itself is NOT a pip
+# package and must be installed separately (UB Mannheim build on Windows). When
+# it is not on PATH, set the TESSERACT_CMD environment variable to its full
+# path - src/stage4_image/decode.py reads it from there and hardcodes nothing.
+pillow==10.4.0
+pyzbar==0.1.9
+pytesseract==0.3.13
+
 # --- demo app ---
 streamlit==1.35.0
 

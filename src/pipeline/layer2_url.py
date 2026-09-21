@@ -7,11 +7,19 @@ red flags at 0.3, trusted domains short-circuited to 0.0.
 
 Note this DOES make a real HTTP request per URL (5s timeout) as part of the
 HTML check — that is stage 2's existing behaviour.
+
+Content types: that same request already receives a Content-Type header which
+used to be discarded. A response that is an image is now handed to layer 4 to
+decode rather than to the HTML parser, and layer 2 ABSTAINS on that URL. The
+alternative — running four markup red-flag checks over a JPEG — returns false
+for all four, which is indistinguishable from a page that was inspected and
+found clean. An abstention says "not scored"; a 0.0 would say "safe".
 """
 import sys
 import warnings
 from pathlib import Path
 from functools import lru_cache
+from typing import Dict, List, Optional, Tuple
 
 import numpy as np
 import scipy.sparse as sp
@@ -62,16 +70,43 @@ def _stage2():
         import predict as stage2_predict
 
     _fix_tfidf_across_sklearn_versions(stage2_predict.cv)
-    return stage2_predict.predict_url_score
+    return stage2_predict.predict_url_detail
+
+
+def _predict_url_with_bytes(url: str) -> Tuple[Dict, Optional[bytes]]:
+    """
+    Score one URL, returning its result dict and any image bytes fetched.
+
+    The bytes are kept OUT of the result dict deliberately: that dict is
+    serialised into the pipeline's JSON output, and a few hundred KB of JPEG
+    does not belong there.
+    """
+    try:
+        detail = _stage2()(url)
+        result = {
+            "url": url,
+            "phish_score": detail["phish_score"],
+            "error": None,
+            "abstained": detail["abstained"],
+            "note": detail["abstain_reason"],
+            "content_type": detail["content_type"],
+        }
+        return result, detail["image_bytes"]
+    except Exception as exc:
+        result = {
+            "url": url,
+            "phish_score": None,
+            "error": f"{type(exc).__name__}: {exc}",
+            "abstained": False,
+            "note": None,
+            "content_type": None,
+        }
+        return result, None
 
 
 def predict_url(url: str) -> dict:
     """Score a single URL."""
-    try:
-        score = float(_stage2()(url))
-        return {"url": url, "phish_score": score, "error": None}
-    except Exception as exc:
-        return {"url": url, "phish_score": None, "error": f"{type(exc).__name__}: {exc}"}
+    return _predict_url_with_bytes(url)[0]
 
 
 def predict_urls(urls: list) -> dict:
@@ -82,8 +117,27 @@ def predict_urls(urls: list) -> dict:
     handed to the fusion layer is the MAX score across URLs, not the mean.
     Returns url_phish_score = None when there was no URL to score, which is
     different from a score of 0.0 (checked, looks clean).
+
+    A URL that abstained (its response was an image) contributes nothing to the
+    max, exactly like one that failed to fetch. Any image bytes collected on the
+    way are returned under "fetched_images" for layer 4; the caller is expected
+    to remove that key before serialising the result.
     """
-    results = [predict_url(u) for u in urls]
+    results = []
+    fetched_images: List[bytes] = []
+    for url in urls:
+        result, image_bytes = _predict_url_with_bytes(url)
+        results.append(result)
+        if image_bytes:
+            fetched_images.append(image_bytes)
+
+    aggregate = _aggregate(results)
+    aggregate["fetched_images"] = fetched_images
+    return aggregate
+
+
+def _aggregate(results: List[Dict]) -> Dict:
+    """Max across per-URL results, shared by predict_urls and merge_results."""
     scored = [r["phish_score"] for r in results if r["phish_score"] is not None]
 
     if not scored:
@@ -95,3 +149,23 @@ def predict_urls(urls: list) -> dict:
         "url_phish_score": max(scored),
         "worst_url": worst["url"],
     }
+
+
+def merge_results(first: Dict, second: Dict) -> Dict:
+    """
+    Combine two layer 2 passes into one, re-running the same max aggregation.
+
+    Needed because QR codes are only discovered after the first pass: a URL that
+    served an image is decoded by layer 4, and any link inside that image has to
+    be scored too. Merging is cheaper than re-scoring the first pass's URLs,
+    which would mean fetching every one of them a second time.
+    """
+    combined = list(first["results"])
+    seen = {r["url"] for r in combined}
+    combined.extend(r for r in second["results"] if r["url"] not in seen)
+
+    merged = _aggregate(combined)
+    merged["fetched_images"] = list(first.get("fetched_images", [])) + list(
+        second.get("fetched_images", [])
+    )
+    return merged

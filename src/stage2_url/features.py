@@ -48,15 +48,41 @@ def extract_lexical_features(url):
         'domain_length': domain_length(url),
     }
 
-def fetch_html(url, timeout=5):
+def fetch_resource(url, timeout=5):
+    """
+    Fetch a URL once and report what came back.
+
+    Returns None when the request failed (down, blocked, timeout), otherwise a
+    dict with the declared content type alongside both the decoded text and the
+    raw bytes, so the caller can decide which one is meaningful.
+
+    The Content-Type header was already being received and thrown away; reading
+    it costs nothing extra on the wire. The timeout is unchanged at 5s.
+    """
     if not url.startswith(('http://', 'https://')):
         url = 'http://' + url
     try:
         headers = {'User-Agent': 'Mozilla/5.0'}
         response = requests.get(url, headers=headers, timeout=timeout)
-        return response.text
     except requests.exceptions.RequestException:
         return None
+
+    declared = response.headers.get('Content-Type', '') or ''
+    content_type = declared.split(';', 1)[0].strip().lower()
+
+    return {
+        'content_type': content_type,
+        'is_html': content_type in ('text/html', 'application/xhtml+xml'),
+        'is_image': content_type.startswith('image/'),
+        'text': response.text,
+        'content': response.content,
+    }
+
+
+def fetch_html(url, timeout=5):
+    """Backwards-compatible wrapper: just the decoded body, or None."""
+    resource = fetch_resource(url, timeout=timeout)
+    return None if resource is None else resource['text']
 
 def get_link_ratio(soup, base_url):
     base_domain = urlparse(base_url).netloc
@@ -96,10 +122,14 @@ def blocks_right_click(html_text):
     html_lower = html_text.lower()
     return any(snippet in html_lower for snippet in suspicious_snippets)
 
-def check_website_html(url):
-    html_text = fetch_html(url)
-    if html_text is None:
-        return None
+def analyze_html(html_text, url):
+    """
+    The four red flags, computed from an already-fetched body.
+
+    Split out of check_website_html so a caller that has done the fetch itself
+    (to look at the Content-Type first) does not have to fetch a second time.
+    The checks themselves are unchanged.
+    """
     soup = BeautifulSoup(html_text, 'html.parser')
     internal, external, ext_ratio = get_link_ratio(soup, url)
     return {
@@ -108,3 +138,10 @@ def check_website_html(url):
         'has_suspicious_form': has_suspicious_form(soup, url),
         'blocks_right_click': blocks_right_click(html_text),
     }
+
+
+def check_website_html(url):
+    html_text = fetch_html(url)
+    if html_text is None:
+        return None
+    return analyze_html(html_text, url)
