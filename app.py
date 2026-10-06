@@ -6,8 +6,10 @@ Runs the full pipeline, not just the text model:
   layer 1  TF-IDF + SVM (v3) on the message text
   layer 2  stage 2 URL model on each extracted link
   layer 3  sender ID against the TRAI header register + impersonation rules
-  layer 4  decode attached images -> QR links to layer 2, OCR text to layer 1
-  fusion   logistic regression over the three scores -> verdict + reasons
+  layer 4  decode attached images -> QR links to layer 2, OCR text to layer 1,
+           and the header on the top line of a screenshot to layer 3
+  fusion   logistic regression over the three scores -> verdict, plus the
+           structured breakdown of how that verdict was reached
 
 Layer 4 has no vote in the fusion layer. Its image-only score is displayed
 because it is useful to a human reading the result, but the fusion model was
@@ -77,6 +79,134 @@ def score_bar(label: str, score, caption: str):
     st.markdown(f"**{label}** &nbsp; `{score:.3f}`", unsafe_allow_html=True)
     st.progress(min(max(float(score), 0.0), 1.0))
     st.caption(caption)
+
+
+LAYER_NUMBERS = {"l1": 1, "l2": 2, "l3": 3}
+
+
+def layer_title(entry: dict) -> str:
+    """"Layer 2 · URL model", matching the headings used further down."""
+    return f"Layer {LAYER_NUMBERS[entry['layer']]} · {entry['name']}"
+
+
+def render_breakdown(explanation: dict):
+    """
+    The arithmetic, as a table.
+
+    What each layer measured, how far that moved the log-odds, and the running
+    total. The last column is the counterfactual - what the score would have
+    been with that layer silent - which is the only column that answers "did
+    this layer decide it?".
+
+    Deliberately NO "measurement x weight" column. A layer's push is the sum
+    over all of its feature columns, and layer 1 owns two of them, so the
+    product of the two numbers shown would not equal the push beside them. The
+    full term-by-term arithmetic is printed under each layer's findings instead,
+    where it fits honestly.
+    """
+    baseline = explanation["baseline"]
+    arithmetic = explanation["arithmetic"]
+
+    rows = [
+        "| | Measured | Push (log-odds) | Score without it |",
+        "|---|---|---|---|",
+        f"| *baseline — no layer contributing* | — | `{baseline['logit']:+.3f}` "
+        f"| **{baseline['score']:.3f}** |",
+    ]
+
+    for entry in explanation["layers"]:
+        if not entry["contributed"]:
+            rows.append(
+                f"| {layer_title(entry)} | *did not contribute* | `0.000` | — |"
+            )
+            continue
+
+        flag = " ⚠️" if entry["decisive"] else ""
+        rows.append(
+            f"| {layer_title(entry)} | `{entry['score']:.3f}` "
+            f"| `{entry['contribution']:+.3f}` "
+            f"| {entry['score_without']:.3f}{flag} |"
+        )
+
+    rows.append(
+        f"| **final** | | `{arithmetic['logit']:+.3f}` "
+        f"| **{arithmetic['score']:.3f}** |"
+    )
+    st.markdown("\n".join(rows))
+
+    st.caption(
+        "The pushes sum to the final log-odds exactly — this is a logistic "
+        "regression, so the breakdown is the model's own arithmetic rather than "
+        "an estimate of it. *Score without it* re-runs the model with that one "
+        "layer silent; ⚠️ marks a layer whose removal flips the verdict. "
+        f"Baseline {baseline['score']:.3f} is {baseline['what']}."
+        "  Each layer's term-by-term arithmetic is under its findings below."
+    )
+
+
+def render_findings(explanation: dict):
+    """What each layer actually measured, in the order layer 1, 2, 3."""
+    for entry in explanation["layers"]:
+        if entry["contributed"]:
+            heading = (f"**{layer_title(entry)}** — {entry['direction']}, "
+                       f"{entry['share']:.0%} of all the movement in this verdict")
+            if entry["decisive"]:
+                heading += " · **decisive on its own**"
+        else:
+            heading = f"**{layer_title(entry)}** — did not contribute"
+
+        st.markdown(heading)
+        st.markdown(f"> {entry['finding'] or entry['absence_reason']}")
+        for detail in entry["details"]:
+            st.caption(f"· {detail}")
+        if entry.get("arithmetic_text"):
+            st.caption(f"· arithmetic: {entry['arithmetic_text']}")
+
+
+def render_rules(explanation: dict):
+    """
+    Every rule that sits beside the model, fired or not.
+
+    The ones that did not fire are shown on purpose. "Nothing overrode this
+    verdict" is worth being able to say, and it cannot be said from a list that
+    only ever contains what happened.
+    """
+    for rule in explanation["rules"]:
+        line = f"**{rule['name']}** — {rule['effect']}"
+        if rule["fired"]:
+            st.markdown(f"🚨 {line}")
+        else:
+            st.caption(f"✓ {line}")
+
+
+def render_explanation(fusion: dict):
+    """The whole structured account of one verdict."""
+    explanation = fusion.get("explanation")
+    if not explanation:
+        # Older result shape: the flat reason list is all there is.
+        st.subheader("Why")
+        for reason in fusion.get("reasons", []):
+            st.markdown(f"- {reason}")
+        return
+
+    st.subheader("Why this verdict")
+    st.markdown(explanation["summary"])
+
+    st.markdown("**How the score was built**")
+    render_breakdown(explanation)
+
+    st.markdown("**What each layer found**")
+    render_findings(explanation)
+
+    st.markdown("**Rules checked beside the model**")
+    render_rules(explanation)
+
+    confidence = explanation["confidence"]
+    st.caption(
+        f"Confidence **{confidence['level'].upper()}** — "
+        f"{confidence['layers_used']} of {confidence['layers_total']} layers "
+        f"contributed. {confidence['basis'][0].upper()}{confidence['basis'][1:]}."
+    )
 
 
 try:
@@ -160,10 +290,8 @@ if submitted:
             "evidence than usual. A missing layer is treated as *no information*, not as *safe*."
         )
 
-    # --- Why ---
-    st.subheader("Why")
-    for reason in fz["reasons"]:
-        st.markdown(f"- {reason}")
+    # --- Why: the structured account, not a flat list of one-liners ---
+    render_explanation(fz)
 
     # --- What was extracted ---
     st.subheader("Extracted from the message")
@@ -179,6 +307,27 @@ if submitted:
     left, right = st.columns(2)
     left.metric("Sender ID", inp["sender_id"] or "—")
     right.metric("Links found", len(scored_links))
+
+    # Where the sender came from, because the three sources are not equally
+    # strong. Carrier metadata is a fact; a header OCR'd off a screenshot is a
+    # reading, and the reader should be told which one layer 3 was given.
+    if inp.get("sender_source"):
+        from_image = inp.get("sender_from_image")
+        if from_image:
+            st.caption(
+                f"Sender ID **{inp['sender_id']}** was read out of the image — "
+                f"line {from_image['line_index']} of image {from_image['image']}, "
+                f"matched as: {from_image['tier']}. No sender arrived as metadata "
+                "and none was written in the message body, so layer 3 would "
+                "otherwise have had nothing to look up."
+            )
+            if from_image.get("alternatives"):
+                st.caption(
+                    "Other lines near the top that could have been a header: "
+                    + ", ".join(f"`{alt}`" for alt in from_image["alternatives"])
+                )
+        else:
+            st.caption(f"Sender ID source: {inp['sender_source']}.")
 
     if image_links:
         st.caption(
@@ -303,9 +452,15 @@ if submitted:
                 )
 
         if l1.get("ocr_used"):
+            def probability(value):
+                """'n/a' for a text layer 1 had nothing to score."""
+                return "n/a" if value is None else f"{value:.3f}"
+
             st.caption(
-                f"Layer 1 scored body {l1.get('body_smish_probability')} and OCR text "
-                f"{l1.get('ocr_smish_probability')}, taking the max."
+                f"Layer 1 scored the message body {probability(l1.get('body_smish_probability'))} "
+                f"and the text read out of the image "
+                f"{probability(l1.get('ocr_smish_probability'))}, and kept the higher "
+                "of the two."
             )
 
     if l2["results"]:

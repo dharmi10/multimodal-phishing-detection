@@ -1,0 +1,734 @@
+{
+  "generated_at": "2026-10-06T15:35:42+00:00",
+  "samples": [
+    {
+      "id": "legit",
+      "kind": "legitimate",
+      "sender": "VM-HDFCBK",
+      "text": "Your HDFC Bank OTP is 724193. Valid for 10 minutes. Do not share it with anyone.",
+      "result": {
+        "input": {
+          "raw": "Your HDFC Bank OTP is 724193. Valid for 10 minutes. Do not share it with anyone.",
+          "sender_id": "VM-HDFCBK",
+          "sender_source": "carrier metadata",
+          "sender_from_image": null,
+          "text": "Your HDFC Bank OTP is 724193. Valid for 10 minutes. Do not share it with anyone.",
+          "urls": [],
+          "channel": "sms",
+          "images_attached": 0
+        },
+        "layer1_sms": {
+          "label": 0,
+          "prediction": "legitimate",
+          "smish_probability": 0.00990773028292798,
+          "confidence": 0.7449439501297721,
+          "decision_score": -1.0718256564062942,
+          "cleaned_text": "hdfc bank otp is 724193 valid 10 minute share anyone",
+          "note": null
+        },
+        "layer2_url": {
+          "results": [],
+          "url_phish_score": null,
+          "worst_url": null
+        },
+        "layer3_sender": {
+          "sender_id": "VM-HDFCBK",
+          "header": "HDFCBK",
+          "prefix": "VM",
+          "suffix": null,
+          "status": "registered",
+          "sender_phish_score": 0.0,
+          "entity_name": "HDFC BANK LIMITED",
+          "impersonation": false,
+          "impersonation_tier": null,
+          "impersonation_edit": null,
+          "invalid_header": false,
+          "resembles": null,
+          "resembles_entity": null,
+          "resembles_distance": null,
+          "note": "header HDFCBK is on the sender register (registered to HDFC BANK LIMITED)"
+        },
+        "layer4_image": {
+          "results": [],
+          "image_score": null,
+          "qr_urls": [],
+          "ocr_text": "",
+          "ocr_lines": [],
+          "ocr_empty": false,
+          "ocr_degraded": false,
+          "notes": [],
+          "images_scored": 0
+        },
+        "fusion": {
+          "score": 0.011198101997022565,
+          "verdict": "legitimate",
+          "label": "LEGITIMATE",
+          "label_reason": "",
+          "model_label": "LEGITIMATE",
+          "sender_override": false,
+          "threshold": 0.5,
+          "confidence": "medium",
+          "layers_used": 2,
+          "inputs": {
+            "l1": 0.00990773028292798,
+            "l2": null,
+            "l3": 0.0
+          },
+          "reasons": [
+            "SMS text model: message wording scored 0.01, read as legitimate - lowers the risk (-2.97 log-odds)",
+            "sender ID register: sender 'VM-HDFCBK' (header HDFCBK) is on the sender register, registered to HDFC BANK LIMITED - lowers the risk (-1.31 log-odds)",
+            "URL model: no link in the message, so it could not contribute"
+          ],
+          "explanation": {
+            "label": "LEGITIMATE",
+            "label_reason": "",
+            "verdict": "legitimate",
+            "score": 0.011198101997022565,
+            "threshold": 0.5,
+            "decision": "score 0.011 is below the 0.5 threshold, so the model's verdict is LEGITIMATE",
+            "baseline": {
+              "score": 0.45016188707821403,
+              "logit": -0.20001662762486294,
+              "what": "what the model returns when no layer has anything to say"
+            },
+            "layers": [
+              {
+                "layer": "l1",
+                "name": "SMS text model",
+                "contributed": true,
+                "score": 0.00990773028292798,
+                "weight": 6.04670794365713,
+                "weighted_feature": "l1_score",
+                "weighted_value": 0.00990773028292798,
+                "terms": [
+                  {
+                    "feature": "l1_score",
+                    "value": 0.00990773028292798,
+                    "silent_value": 0.5,
+                    "coefficient": 6.04670794365713,
+                    "push": -2.963444820423172
+                  },
+                  {
+                    "feature": "l1_present",
+                    "value": 1.0,
+                    "silent_value": 0.0,
+                    "coefficient": -0.0070508968779801106,
+                    "push": -0.0070508968779801106
+                  }
+                ],
+                "arithmetic_text": "l1_score 0.010 (silent 0.500) x +6.047 = -2.963; l1_present 1.000 (silent 0.000) x -0.007 = -0.007",
+                "indicator": null,
+                "contribution": -2.9704957173011524,
+                "direction": "lowers the risk",
+                "share": 0.6939222003217432,
+                "score_without": 0.18090115497028086,
+                "decisive": false,
+                "finding": "message wording scored 0.01, read as legitimate",
+                "details": [
+                  "model confidence 74%"
+                ],
+                "absence_reason": null
+              },
+              {
+                "layer": "l2",
+                "name": "URL model",
+                "contributed": false,
+                "score": null,
+                "weight": null,
+                "weighted_feature": null,
+                "weighted_value": null,
+                "terms": [],
+                "arithmetic_text": null,
+                "indicator": null,
+                "contribution": 0.0,
+                "direction": "did not contribute",
+                "share": 0.0,
+                "score_without": 0.011198101997022578,
+                "decisive": false,
+                "finding": null,
+                "details": [],
+                "absence_reason": "no link in the message, so it could not contribute"
+              },
+              {
+                "layer": "l3",
+                "name": "sender ID register",
+                "contributed": true,
+                "score": 0.0,
+                "weight": -1.3102373618882086,
+                "weighted_feature": "l3_known_legit",
+                "weighted_value": 1.0,
+                "terms": [
+                  {
+                    "feature": "l3_known_legit",
+                    "value": 1.0,
+                    "silent_value": 0.0,
+                    "coefficient": -1.3102373618882086,
+                    "push": -1.3102373618882086
+                  },
+                  {
+                    "feature": "l3_known_phish",
+                    "value": 0.0,
+                    "silent_value": 0.0,
+                    "coefficient": 0.0,
+                    "push": 0.0
+                  }
+                ],
+                "arithmetic_text": "l3_known_legit 1.000 (silent 0.000) x -1.310 = -1.310; l3_known_phish 0.000 (silent 0.000) x +0.000 = +0.000",
+                "indicator": "l3_known_legit",
+                "contribution": -1.3102373618882086,
+                "direction": "lowers the risk",
+                "share": 0.3060777996782568,
+                "score_without": 0.040290599777739966,
+                "decisive": false,
+                "finding": "sender 'VM-HDFCBK' (header HDFCBK) is on the sender register, registered to HDFC BANK LIMITED",
+                "details": [
+                  "normalised by stripping operator prefix VM",
+                  "a registered header is the only thing this layer scores; everything else it reports travels as a rule, not a number"
+                ],
+                "absence_reason": null
+              }
+            ],
+            "arithmetic": {
+              "intercept": -4.091130265356294,
+              "baseline_logit": -0.20001662762486294,
+              "contributions": {
+                "l1": -2.9704957173011524,
+                "l2": 0.0,
+                "l3": -1.3102373618882086
+              },
+              "total_contribution": -4.2807330791893605,
+              "logit": -4.4807497068142235,
+              "score": 0.011198101997022578,
+              "exact": true,
+              "how": "logit = intercept + sum(coefficient * value); score = 1/(1+e^-logit)"
+            },
+            "rules": [
+              {
+                "name": "sender impersonation",
+                "fired": false,
+                "effect": "checked, no match - the header does not resemble a protected brand"
+              },
+              {
+                "name": "invalid sender shape",
+                "fired": false,
+                "effect": "checked, no match - the header has a shape registered senders do have"
+              }
+            ],
+            "confidence": {
+              "level": "medium",
+              "layers_used": 2,
+              "layers_total": 3,
+              "basis": "a missing layer is treated as no information, not as safe, so a verdict on fewer layers rests on less evidence"
+            },
+            "reasons": [
+              "SMS text model: message wording scored 0.01, read as legitimate - lowers the risk (-2.97 log-odds)",
+              "sender ID register: sender 'VM-HDFCBK' (header HDFCBK) is on the sender register, registered to HDFC BANK LIMITED - lowers the risk (-1.31 log-odds)",
+              "URL model: no link in the message, so it could not contribute"
+            ],
+            "summary": "2 of 3 layers contributed. From the model's no-evidence baseline of 0.450 they moved the score to 0.011. Ranked by how far each shifted the log-odds: SMS text model (-2.97), then sender ID register (-1.31). All of them pushed the same way. That is below the 0.5 threshold. Hence LEGITIMATE."
+          }
+        }
+      }
+    },
+    {
+      "id": "phish",
+      "kind": "phishing",
+      "sender": "VM-HDFCBK",
+      "text": "Your account has been suspended. Verify immediately at http://hdfc-secure-verify.tk/login",
+      "result": {
+        "input": {
+          "raw": "Your account has been suspended. Verify immediately at http://hdfc-secure-verify.tk/login",
+          "sender_id": "VM-HDFCBK",
+          "sender_source": "carrier metadata",
+          "sender_from_image": null,
+          "text": "Your account has been suspended. Verify immediately at http://hdfc-secure-verify.tk/login",
+          "urls": [
+            "http://hdfc-secure-verify.tk/login"
+          ],
+          "channel": "sms",
+          "images_attached": 0
+        },
+        "layer1_sms": {
+          "label": 1,
+          "prediction": "smish",
+          "smish_probability": 0.9999851247677929,
+          "confidence": 0.6941666477316003,
+          "decision_score": 0.819671704921844,
+          "cleaned_text": "account suspended verify immediately",
+          "note": null
+        },
+        "layer2_url": {
+          "results": [
+            {
+              "url": "http://hdfc-secure-verify.tk/login",
+              "phish_score": 0.6963999648867771,
+              "error": null,
+              "abstained": false,
+              "note": null,
+              "content_type": null
+            }
+          ],
+          "url_phish_score": 0.6963999648867771,
+          "worst_url": "http://hdfc-secure-verify.tk/login"
+        },
+        "layer3_sender": {
+          "sender_id": "VM-HDFCBK",
+          "header": "HDFCBK",
+          "prefix": "VM",
+          "suffix": null,
+          "status": "registered",
+          "sender_phish_score": 0.0,
+          "entity_name": "HDFC BANK LIMITED",
+          "impersonation": false,
+          "impersonation_tier": null,
+          "impersonation_edit": null,
+          "invalid_header": false,
+          "resembles": null,
+          "resembles_entity": null,
+          "resembles_distance": null,
+          "note": "header HDFCBK is on the sender register (registered to HDFC BANK LIMITED)"
+        },
+        "layer4_image": {
+          "results": [],
+          "image_score": null,
+          "qr_urls": [],
+          "ocr_text": "",
+          "ocr_lines": [],
+          "ocr_empty": false,
+          "ocr_degraded": false,
+          "notes": [],
+          "images_scored": 0
+        },
+        "fusion": {
+          "score": 0.8637527224695751,
+          "verdict": "phishing",
+          "label": "PHISHING",
+          "label_reason": "",
+          "model_label": "PHISHING",
+          "sender_override": false,
+          "threshold": 0.5,
+          "confidence": "high",
+          "layers_used": 3,
+          "inputs": {
+            "l1": 0.9999851247677929,
+            "l2": 0.6963999648867771,
+            "l3": 0.0
+          },
+          "reasons": [
+            "SMS text model: message wording scored 1.00, read as smish - raises the risk (+3.02 log-odds)",
+            "sender ID register: sender 'VM-HDFCBK' (header HDFCBK) is on the sender register, registered to HDFC BANK LIMITED - lowers the risk (-1.31 log-odds)",
+            "URL model: worst of 1 link(s) scored 0.70 - http://hdfc-secure-verify.tk/login - raises the risk (+0.34 log-odds)"
+          ],
+          "explanation": {
+            "label": "PHISHING",
+            "label_reason": "",
+            "verdict": "phishing",
+            "score": 0.8637527224695751,
+            "threshold": 0.5,
+            "decision": "score 0.864 is at or above the 0.5 threshold, so the model's verdict is PHISHING",
+            "baseline": {
+              "score": 0.45016188707821403,
+              "logit": -0.20001662762486294,
+              "what": "what the model returns when no layer has anything to say"
+            },
+            "layers": [
+              {
+                "layer": "l1",
+                "name": "SMS text model",
+                "contributed": true,
+                "score": 0.9999851247677929,
+                "weight": 6.04670794365713,
+                "weighted_feature": "l1_score",
+                "weighted_value": 0.9999851247677929,
+                "terms": [
+                  {
+                    "feature": "l1_score",
+                    "value": 0.9999851247677929,
+                    "silent_value": 0.5,
+                    "coefficient": 6.04670794365713,
+                    "push": 3.0232640256438144
+                  },
+                  {
+                    "feature": "l1_present",
+                    "value": 1.0,
+                    "silent_value": 0.0,
+                    "coefficient": -0.0070508968779801106,
+                    "push": -0.0070508968779801106
+                  }
+                ],
+                "arithmetic_text": "l1_score 1.000 (silent 0.500) x +6.047 = +3.023; l1_present 1.000 (silent 0.000) x -0.007 = -0.007",
+                "indicator": null,
+                "contribution": 3.016213128765834,
+                "direction": "raises the risk",
+                "share": 0.6462427904139036,
+                "score_without": 0.23696380613295603,
+                "decisive": true,
+                "finding": "message wording scored 1.00, read as smish",
+                "details": [
+                  "model confidence 69%"
+                ],
+                "absence_reason": null
+              },
+              {
+                "layer": "l2",
+                "name": "URL model",
+                "contributed": true,
+                "score": 0.6963999648867771,
+                "weight": 1.7355193318057318,
+                "weighted_feature": "l2_score",
+                "weighted_value": 0.6963999648867771,
+                "terms": [
+                  {
+                    "feature": "l2_score",
+                    "value": 0.6963999648867771,
+                    "silent_value": 0.5,
+                    "coefficient": 1.7355193318057318,
+                    "push": 0.34085593582696866
+                  }
+                ],
+                "arithmetic_text": "l2_score 0.696 (silent 0.500) x +1.736 = +0.341",
+                "indicator": null,
+                "contribution": 0.34085593582696866,
+                "direction": "raises the risk",
+                "share": 0.0730305458182574,
+                "score_without": 0.8184615792290542,
+                "decisive": false,
+                "finding": "worst of 1 link(s) scored 0.70 - http://hdfc-secure-verify.tk/login",
+                "details": [
+                  "http://hdfc-secure-verify.tk/login: 0.696"
+                ],
+                "absence_reason": null
+              },
+              {
+                "layer": "l3",
+                "name": "sender ID register",
+                "contributed": true,
+                "score": 0.0,
+                "weight": -1.3102373618882086,
+                "weighted_feature": "l3_known_legit",
+                "weighted_value": 1.0,
+                "terms": [
+                  {
+                    "feature": "l3_known_legit",
+                    "value": 1.0,
+                    "silent_value": 0.0,
+                    "coefficient": -1.3102373618882086,
+                    "push": -1.3102373618882086
+                  },
+                  {
+                    "feature": "l3_known_phish",
+                    "value": 0.0,
+                    "silent_value": 0.0,
+                    "coefficient": 0.0,
+                    "push": 0.0
+                  }
+                ],
+                "arithmetic_text": "l3_known_legit 1.000 (silent 0.000) x -1.310 = -1.310; l3_known_phish 0.000 (silent 0.000) x +0.000 = +0.000",
+                "indicator": "l3_known_legit",
+                "contribution": -1.3102373618882086,
+                "direction": "lowers the risk",
+                "share": 0.2807266637678389,
+                "score_without": 0.959185709858431,
+                "decisive": false,
+                "finding": "sender 'VM-HDFCBK' (header HDFCBK) is on the sender register, registered to HDFC BANK LIMITED",
+                "details": [
+                  "normalised by stripping operator prefix VM",
+                  "a registered header is the only thing this layer scores; everything else it reports travels as a rule, not a number"
+                ],
+                "absence_reason": null
+              }
+            ],
+            "arithmetic": {
+              "intercept": -4.091130265356294,
+              "baseline_logit": -0.20001662762486294,
+              "contributions": {
+                "l1": 3.016213128765834,
+                "l2": 0.34085593582696866,
+                "l3": -1.3102373618882086
+              },
+              "total_contribution": 2.046831702704594,
+              "logit": 1.8468150750797312,
+              "score": 0.8637527224695751,
+              "exact": true,
+              "how": "logit = intercept + sum(coefficient * value); score = 1/(1+e^-logit)"
+            },
+            "rules": [
+              {
+                "name": "sender impersonation",
+                "fired": false,
+                "effect": "checked, no match - the header does not resemble a protected brand"
+              },
+              {
+                "name": "invalid sender shape",
+                "fired": false,
+                "effect": "checked, no match - the header has a shape registered senders do have"
+              }
+            ],
+            "confidence": {
+              "level": "high",
+              "layers_used": 3,
+              "layers_total": 3,
+              "basis": "all three layers measured something, which is the most evidence this pipeline can have"
+            },
+            "reasons": [
+              "SMS text model: message wording scored 1.00, read as smish - raises the risk (+3.02 log-odds)",
+              "sender ID register: sender 'VM-HDFCBK' (header HDFCBK) is on the sender register, registered to HDFC BANK LIMITED - lowers the risk (-1.31 log-odds)",
+              "URL model: worst of 1 link(s) scored 0.70 - http://hdfc-secure-verify.tk/login - raises the risk (+0.34 log-odds)"
+            ],
+            "summary": "3 of 3 layers contributed. From the model's no-evidence baseline of 0.450 they moved the score to 0.864. Ranked by how far each shifted the log-odds: SMS text model (+3.02), then sender ID register (-1.31), then URL model (+0.34). They did not all push the same way, and the score is where that disagreement settled. That is at or above the 0.5 threshold. Hence PHISHING."
+          }
+        }
+      }
+    },
+    {
+      "id": "borderline",
+      "kind": "borderline",
+      "sender": "BLUDRT-S",
+      "text": "Your order with Blue Dart AWB# 36178371235 was delivered. Rate our service: https://acl.cc/BLUDRT/o78mMZR5",
+      "result": {
+        "input": {
+          "raw": "Your order with Blue Dart AWB# 36178371235 was delivered. Rate our service: https://acl.cc/BLUDRT/o78mMZR5",
+          "sender_id": "BLUDRT-S",
+          "sender_source": "carrier metadata",
+          "sender_from_image": null,
+          "text": "Your order with Blue Dart AWB# 36178371235 was delivered. Rate our service: https://acl.cc/BLUDRT/o78mMZR5",
+          "urls": [
+            "https://acl.cc/BLUDRT/o78mMZR5"
+          ],
+          "channel": "sms",
+          "images_attached": 0
+        },
+        "layer1_sms": {
+          "label": 0,
+          "prediction": "legitimate",
+          "smish_probability": 0.032930868562990954,
+          "confidence": 0.7024787426913791,
+          "decision_score": -0.8591294656647692,
+          "cleaned_text": "order blue dart awb delivered rate service",
+          "note": null
+        },
+        "layer2_url": {
+          "results": [
+            {
+              "url": "https://acl.cc/BLUDRT/o78mMZR5",
+              "phish_score": 0.3794528136031286,
+              "error": null,
+              "abstained": false,
+              "note": null,
+              "content_type": ""
+            }
+          ],
+          "url_phish_score": 0.3794528136031286,
+          "worst_url": "https://acl.cc/BLUDRT/o78mMZR5"
+        },
+        "layer3_sender": {
+          "sender_id": "BLUDRT-S",
+          "header": "BLUDRT",
+          "prefix": null,
+          "suffix": "S",
+          "status": "registered",
+          "sender_phish_score": 0.0,
+          "entity_name": "BLUE DART EXPRESS LIMITED",
+          "impersonation": false,
+          "impersonation_tier": null,
+          "impersonation_edit": null,
+          "invalid_header": false,
+          "resembles": null,
+          "resembles_entity": null,
+          "resembles_distance": null,
+          "note": "header BLUDRT is on the sender register (registered to BLUE DART EXPRESS LIMITED)"
+        },
+        "layer4_image": {
+          "results": [],
+          "image_score": null,
+          "qr_urls": [],
+          "ocr_text": "",
+          "ocr_lines": [],
+          "ocr_empty": false,
+          "ocr_degraded": false,
+          "notes": [],
+          "images_scored": 0
+        },
+        "fusion": {
+          "score": 0.01044897455135995,
+          "verdict": "legitimate",
+          "label": "LEGITIMATE",
+          "label_reason": "",
+          "model_label": "LEGITIMATE",
+          "sender_override": false,
+          "threshold": 0.5,
+          "confidence": "high",
+          "layers_used": 3,
+          "inputs": {
+            "l1": 0.032930868562990954,
+            "l2": 0.3794528136031286,
+            "l3": 0.0
+          },
+          "reasons": [
+            "SMS text model: message wording scored 0.03, read as legitimate - lowers the risk (-2.83 log-odds)",
+            "sender ID register: sender 'BLUDRT-S' (header BLUDRT) is on the sender register, registered to BLUE DART EXPRESS LIMITED - lowers the risk (-1.31 log-odds)",
+            "URL model: worst of 1 link(s) scored 0.38 - https://acl.cc/BLUDRT/o78mMZR5 - lowers the risk (-0.21 log-odds)"
+          ],
+          "explanation": {
+            "label": "LEGITIMATE",
+            "label_reason": "",
+            "verdict": "legitimate",
+            "score": 0.01044897455135995,
+            "threshold": 0.5,
+            "decision": "score 0.010 is below the 0.5 threshold, so the model's verdict is LEGITIMATE",
+            "baseline": {
+              "score": 0.45016188707821403,
+              "logit": -0.20001662762486294,
+              "what": "what the model returns when no layer has anything to say"
+            },
+            "layers": [
+              {
+                "layer": "l1",
+                "name": "SMS text model",
+                "contributed": true,
+                "score": 0.032930868562990954,
+                "weight": 6.04670794365713,
+                "weighted_feature": "l1_score",
+                "weighted_value": 0.032930868562990954,
+                "terms": [
+                  {
+                    "feature": "l1_score",
+                    "value": 0.032930868562990954,
+                    "silent_value": 0.5,
+                    "coefficient": 6.04670794365713,
+                    "push": -2.8242306272971986
+                  },
+                  {
+                    "feature": "l1_present",
+                    "value": 1.0,
+                    "silent_value": 0.0,
+                    "coefficient": -0.0070508968779801106,
+                    "push": -0.0070508968779801106
+                  }
+                ],
+                "arithmetic_text": "l1_score 0.033 (silent 0.500) x +6.047 = -2.824; l1_present 1.000 (silent 0.000) x -0.007 = -0.007",
+                "indicator": null,
+                "contribution": -2.831281524175179,
+                "direction": "lowers the risk",
+                "share": 0.6507599794816754,
+                "score_without": 0.1519399639248352,
+                "decisive": false,
+                "finding": "message wording scored 0.03, read as legitimate",
+                "details": [
+                  "model confidence 70%"
+                ],
+                "absence_reason": null
+              },
+              {
+                "layer": "l2",
+                "name": "URL model",
+                "contributed": true,
+                "score": 0.3794528136031286,
+                "weight": 1.7355193318057318,
+                "weighted_feature": "l2_score",
+                "weighted_value": 0.3794528136031286,
+                "terms": [
+                  {
+                    "feature": "l2_score",
+                    "value": 0.3794528136031286,
+                    "silent_value": 0.5,
+                    "coefficient": 1.7355193318057318,
+                    "push": -0.20921197238655925
+                  }
+                ],
+                "arithmetic_text": "l2_score 0.379 (silent 0.500) x +1.736 = -0.209",
+                "indicator": null,
+                "contribution": -0.20921197238655925,
+                "direction": "lowers the risk",
+                "share": 0.04808662709627966,
+                "score_without": 0.01284927290461513,
+                "decisive": false,
+                "finding": "worst of 1 link(s) scored 0.38 - https://acl.cc/BLUDRT/o78mMZR5",
+                "details": [
+                  "https://acl.cc/BLUDRT/o78mMZR5: 0.379"
+                ],
+                "absence_reason": null
+              },
+              {
+                "layer": "l3",
+                "name": "sender ID register",
+                "contributed": true,
+                "score": 0.0,
+                "weight": -1.3102373618882086,
+                "weighted_feature": "l3_known_legit",
+                "weighted_value": 1.0,
+                "terms": [
+                  {
+                    "feature": "l3_known_legit",
+                    "value": 1.0,
+                    "silent_value": 0.0,
+                    "coefficient": -1.3102373618882086,
+                    "push": -1.3102373618882086
+                  },
+                  {
+                    "feature": "l3_known_phish",
+                    "value": 0.0,
+                    "silent_value": 0.0,
+                    "coefficient": 0.0,
+                    "push": 0.0
+                  }
+                ],
+                "arithmetic_text": "l3_known_legit 1.000 (silent 0.000) x -1.310 = -1.310; l3_known_phish 0.000 (silent 0.000) x +0.000 = +0.000",
+                "indicator": "l3_known_legit",
+                "contribution": -1.3102373618882086,
+                "direction": "lowers the risk",
+                "share": 0.3011533934220451,
+                "score_without": 0.03766939393539358,
+                "decisive": false,
+                "finding": "sender 'BLUDRT-S' (header BLUDRT) is on the sender register, registered to BLUE DART EXPRESS LIMITED",
+                "details": [
+                  "normalised by stripping type suffix S",
+                  "a registered header is the only thing this layer scores; everything else it reports travels as a rule, not a number"
+                ],
+                "absence_reason": null
+              }
+            ],
+            "arithmetic": {
+              "intercept": -4.091130265356294,
+              "baseline_logit": -0.20001662762486294,
+              "contributions": {
+                "l1": -2.831281524175179,
+                "l2": -0.20921197238655925,
+                "l3": -1.3102373618882086
+              },
+              "total_contribution": -4.350730858449946,
+              "logit": -4.550747486074809,
+              "score": 0.01044897455135996,
+              "exact": true,
+              "how": "logit = intercept + sum(coefficient * value); score = 1/(1+e^-logit)"
+            },
+            "rules": [
+              {
+                "name": "sender impersonation",
+                "fired": false,
+                "effect": "checked, no match - the header does not resemble a protected brand"
+              },
+              {
+                "name": "invalid sender shape",
+                "fired": false,
+                "effect": "checked, no match - the header has a shape registered senders do have"
+              }
+            ],
+            "confidence": {
+              "level": "high",
+              "layers_used": 3,
+              "layers_total": 3,
+              "basis": "all three layers measured something, which is the most evidence this pipeline can have"
+            },
+            "reasons": [
+              "SMS text model: message wording scored 0.03, read as legitimate - lowers the risk (-2.83 log-odds)",
+              "sender ID register: sender 'BLUDRT-S' (header BLUDRT) is on the sender register, registered to BLUE DART EXPRESS LIMITED - lowers the risk (-1.31 log-odds)",
+              "URL model: worst of 1 link(s) scored 0.38 - https://acl.cc/BLUDRT/o78mMZR5 - lowers the risk (-0.21 log-odds)"
+            ],
+            "summary": "3 of 3 layers contributed. From the model's no-evidence baseline of 0.450 they moved the score to 0.010. Ranked by how far each shifted the log-odds: SMS text model (-2.83), then sender ID register (-1.31), then URL model (-0.21). All of them pushed the same way. That is below the 0.5 threshold. Hence LEGITIMATE."
+          }
+        }
+      }
+    }
+  ]
+}

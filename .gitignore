@@ -8,3 +8,7 @@ logs/
 # GitHub rejects outright. Nothing at runtime reads these — only the
 # bake-off (scripts 04-06). Rebuild: python scripts/04_build_tfidf_features.py
 data/features/
+
+# web frontend (see web/)
+web/node_modules/
+web/dist/

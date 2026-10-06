@@ -8,6 +8,9 @@ that the existing layers already know how to score, and hands them back raw.
     QR / barcode payloads  ->  layer 2 (they are URLs far more often than not)
     OCR text               ->  layer 1 (a smishing message rendered as a picture
                                         to slip past a text-only classifier)
+    OCR text, line by line ->  layer 3 (the sender header sits alone on its own
+                                        line above the message bubble, and is
+                                        only recognisable by that position)
 
 Deliberately NOT here: any confidence floor, any "is this text good enough to
 use" rule, any URL extraction. ocr_confidence is reported so the CALLER can set
@@ -30,7 +33,8 @@ from __future__ import annotations
 import io
 import os
 import re
-from typing import Any, List, Optional, Tuple
+from collections import OrderedDict
+from typing import Any, Dict, List, Optional, Tuple
 
 # Every third-party import is optional at import time. This module will be
 # loaded by the pipeline at startup, so an uninstalled decoder dependency must
@@ -97,6 +101,7 @@ def _empty_result() -> dict:
     return {
         "qr_payloads": [],
         "ocr_text": "",
+        "ocr_lines": [],
         "ocr_confidence": 0.0,
         "ocr_token_count": 0,
         "width": 0,
@@ -146,9 +151,30 @@ def _configure_tesseract() -> None:
         pytesseract.pytesseract.tesseract_cmd = command
 
 
-def _ocr(image: Any) -> Tuple[str, float]:
+# Tesseract numbers every word by the page / block / paragraph / line it sits
+# on. Those four together are a line's identity, and they are the only way back
+# from the flat word table to the lines a person actually sees in the picture.
+_LINE_FIELDS = ("page_num", "block_num", "par_num", "line_num")
+
+
+def _line_keys(data: Dict, count: int) -> List[Any]:
     """
-    Run OCR and return (text, mean_word_confidence).
+    A per-word line identity for each of the `count` rows in Tesseract's table.
+
+    A pytesseract build that does not report the structural columns degrades to
+    one single line, which is exactly what ocr_text already was - never an
+    error, just no line structure to offer.
+    """
+    columns = [data.get(field) for field in _LINE_FIELDS]
+    columns = [c for c in columns if isinstance(c, (list, tuple)) and len(c) >= count]
+    if not columns:
+        return [0] * count
+    return [tuple(column[index] for column in columns) for index in range(count)]
+
+
+def _ocr(image: Any) -> Tuple[str, float, List[str]]:
+    """
+    Run OCR and return (text, mean_word_confidence, lines).
 
     image_to_data rather than image_to_string, because the per-word confidence
     is the whole point: a blurry photo that OCRs into plausible-looking garbage
@@ -160,18 +186,31 @@ def _ocr(image: Any) -> Tuple[str, float]:
     them is reading the format correctly, not applying a quality threshold: the
     text is joined from every row that actually has text, and the mean is taken
     over words with conf > 0. No word is dropped for scoring badly.
+
+    `lines` is the same words regrouped into the visual lines they came from, so
+    " ".join(lines) == ocr_text. It exists because one thing in a screenshot of
+    an SMS is identified by WHERE it sits rather than by what it says: the sender
+    header, alone on its own line above the message. Flattened into one string it
+    becomes indistinguishable from a word of the body text.
     """
     _configure_tesseract()
 
     data = pytesseract.image_to_data(image, output_type=TesseractOutput.DICT)
 
+    texts = data.get("text", [])
+    confs = data.get("conf", [])
+    line_keys = _line_keys(data, len(texts))
+
     words: List[str] = []
     confidences: List[float] = []
-    for raw_text, raw_conf in zip(data.get("text", []), data.get("conf", [])):
+    lines: "OrderedDict[Any, List[str]]" = OrderedDict()
+
+    for index, (raw_text, raw_conf) in enumerate(zip(texts, confs)):
         text = (raw_text or "").strip()
         if not text:
             continue
         words.append(text)
+        lines.setdefault(line_keys[index], []).append(text)
 
         # conf comes back as str in some pytesseract versions, int/float in others.
         try:
@@ -183,7 +222,8 @@ def _ocr(image: Any) -> Tuple[str, float]:
 
     ocr_text = " ".join(words)
     mean_confidence = sum(confidences) / len(confidences) if confidences else 0.0
-    return ocr_text, float(mean_confidence)
+    ocr_lines = [" ".join(line) for line in lines.values()]
+    return ocr_text, float(mean_confidence), ocr_lines
 
 
 def decode_image(image_bytes: bytes) -> dict:
@@ -196,6 +236,7 @@ def decode_image(image_bytes: bytes) -> dict:
     {
         "qr_payloads":  list[str],   # decoded QR/barcode contents, [] if none
         "ocr_text":     str,         # extracted text, "" if none/low confidence
+        "ocr_lines":    list[str],   # the same text split back into visual lines
         "ocr_confidence": float,     # mean word confidence 0-100, 0.0 if no text
         "ocr_token_count": int,      # alphanumeric tokens of length >= 3 in ocr_text
         "width":        int,
@@ -245,7 +286,8 @@ def decode_image(image_bytes: bytes) -> dict:
         problems.append(f"OCR unavailable (pytesseract: {_PYTESSERACT_ERROR})")
     else:
         try:
-            result["ocr_text"], result["ocr_confidence"] = _ocr(image)
+            (result["ocr_text"], result["ocr_confidence"],
+             result["ocr_lines"]) = _ocr(image)
             result["ocr_token_count"] = count_tokens(result["ocr_text"])
         except Exception as exc:
             problems.append(f"OCR failed: {type(exc).__name__}: {exc}")

@@ -8,7 +8,9 @@ with no image costs nothing here and so an uninstalled decoder dependency
 cannot stop the pipeline from booting.
 
 Layer 4 is a DECODER first. Its real output is not image_score - it is the QR
-URLs handed to layer 2 and the OCR text handed to layer 1. image_score covers
+URLs handed to layer 2, the OCR text handed to layer 1, and the OCR line
+structure that lets the sender header be read off the top of a screenshot and
+handed to layer 3. image_score covers
 only what those two cannot see: that there is a QR code at all, that it is a
 payment request, that the picture is shaped like a screenshot, that it is dense
 with text.
@@ -52,7 +54,10 @@ CACHE_PATH = PROJECT_ROOT / "data" / "processed" / "l4_image_cache.json"
 # 3: ocr_empty/ocr_degraded now split on ocr_confidence as well as token count,
 #    so a version 2 entry for a destroyed image carries the old, wrong flags -
 #    it would still be served as "no text found" rather than "degraded".
-CACHE_VERSION = "3"
+# 4: per-image results gained "ocr_lines". A version 3 entry has only the
+#    flattened ocr_text, and a cache hit is served verbatim, so a cached
+#    screenshot would come back with no line structure and no sender header.
+CACHE_VERSION = "4"
 
 
 @lru_cache(maxsize=1)
@@ -155,6 +160,7 @@ def predict_image(image_bytes: bytes, use_cache: bool = True) -> Dict:
             "qr_payment_payloads": [],
             "qr_other_payloads": [],
             "ocr_text": "",
+            "ocr_lines": [],
             "ocr_confidence": 0.0,
             "ocr_token_count": 0,
             "ocr_empty": False,
@@ -207,6 +213,7 @@ def _empty_aggregate() -> Dict[str, Any]:
         "image_score": None,
         "qr_urls": [],
         "ocr_text": "",
+        "ocr_lines": [],
         "ocr_empty": False,
         "ocr_degraded": False,
         "notes": [],

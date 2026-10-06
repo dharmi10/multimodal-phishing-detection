@@ -50,3 +50,8 @@ wordcloud==1.9.3
 datasets==2.19.0
 kaggle==1.6.17
 python-dotenv==1.0.1
+
+# --- web API (api/main.py) ---
+fastapi==0.115.0
+uvicorn==0.30.6
+python-multipart==0.0.9

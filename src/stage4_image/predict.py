@@ -130,6 +130,8 @@ def predict_image(image_bytes: bytes) -> Dict:
         "qr_payment_payloads": list[str],# upi:// and friends, NOT sent to layer 2
         "qr_other_payloads":list[str],   # WIFI:, vCard, plain text
         "ocr_text":         str,         # extracted text -> layer 1
+        "ocr_lines":        list[str],   # the same text, split into visual lines;
+                                         # the top lines carry the sender header
         "ocr_confidence":   float,
         "ocr_token_count":  int,
         "ocr_empty":        bool,        # OCR ran and found no text at all
@@ -154,6 +156,7 @@ def predict_image(image_bytes: bytes) -> Dict:
         "qr_payment_payloads": features["qr_payment_payloads"],
         "qr_other_payloads": features["qr_other_payloads"],
         "ocr_text": decoded["ocr_text"],
+        "ocr_lines": decoded.get("ocr_lines") or [],
         "ocr_confidence": decoded["ocr_confidence"],
         "ocr_token_count": decoded["ocr_token_count"],
         "ocr_empty": features["ocr_empty"],
@@ -187,6 +190,12 @@ def aggregate_images(results: List[Dict]) -> Dict:
     text found" is a statement about the whole message and would be misleading
     if one of the pictures plainly did contain text.
 
+    `ocr_lines` is the flat concatenation of the same contributing images'
+    lines, so " ".join(ocr_lines) == ocr_text here too. Per-image line structure
+    is still available in `results`, and that is what a positional read like
+    "the sender header is on the top line" has to use - the top line of image 2
+    is buried in the middle of this flat list.
+
     Returns image_score = None when there was no image at all, which is
     different from a score of 0.0 (an image was checked and looked ordinary).
     """
@@ -196,6 +205,7 @@ def aggregate_images(results: List[Dict]) -> Dict:
             "image_score": None,
             "qr_urls": [],
             "ocr_text": "",
+            "ocr_lines": [],
             "ocr_empty": False,
             "ocr_degraded": False,
             "notes": [],
@@ -204,6 +214,7 @@ def aggregate_images(results: List[Dict]) -> Dict:
 
     qr_urls: List[str] = []
     text_parts: List[str] = []
+    line_parts: List[str] = []
     notes: List[str] = []
     scores: List[float] = []
     any_degraded = False
@@ -220,6 +231,9 @@ def aggregate_images(results: List[Dict]) -> Dict:
             any_empty = True
         elif result["ocr_text"].strip():
             text_parts.append(result["ocr_text"].strip())
+            line_parts.extend(
+                line for line in (result.get("ocr_lines") or []) if line.strip()
+            )
 
         # An image that never opened scores 0.0 by arithmetic, but reporting
         # that as the aggregate would turn "we could not look" into "we looked
@@ -237,6 +251,7 @@ def aggregate_images(results: List[Dict]) -> Dict:
         "image_score": max(scores) if scores else None,
         "qr_urls": qr_urls,
         "ocr_text": " ".join(text_parts),
+        "ocr_lines": line_parts,
         "ocr_empty": any_empty and not any_degraded and not text_parts,
         "ocr_degraded": any_degraded,
         "notes": notes,

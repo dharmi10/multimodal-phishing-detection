@@ -17,6 +17,7 @@ layers that already know how to score it:
     URLs written in the image  -> layer 2, found by running stage 0's own URL
                                   extractor over the OCR text
     OCR text                   -> layer 1, combined with the body text by max()
+    The image's top OCR lines  -> layer 3, when no sender arrived any other way
 
 That second route matters more than the QR one. Text-as-image is the common
 image-phishing technique - a screenshot of a fake bank SMS - and its link is
@@ -29,17 +30,32 @@ the max across links: the two numbers are outputs of the SAME SVM, so giving
 them separate features would split one coefficient across two copies of one
 signal. Whichever text is more alarming is the one that matters.
 
+The layer 3 route was the last one missing, and its absence was visible: a
+screenshot of a real SMS had its text scored and its link scored while layer 3
+reported "no sender ID was supplied" - with the header sitting in plain sight at
+the top of the picture. It is read off the image only when nothing better is
+available; an explicit sender always wins, because carrier metadata is not a
+guess and an OCR read of a screenshot is.
+
 image_score never reaches the fusion layer at all - see layer4_image.py.
 """
-from typing import Dict, Optional
+import textwrap
+from typing import Dict, List, Optional
 
 from . import extract as extraction
 from .layer1_sms import predict_sms
 from .layer2_url import predict_urls, merge_results
-from .layer3_sender import lookup_sender
+from .layer3_sender import STATUS_MISSING, STATUS_UNKNOWN, lookup_sender
 from .layer4_image import predict_images
 from .message import Message
 from .fusion import fuse
+
+# Where the sender ID the pipeline actually used came from. Reported because a
+# header READ OFF A PICTURE is weaker evidence than one that arrived as carrier
+# metadata, and whoever reads the verdict is entitled to know which it was.
+SENDER_SOURCE_PROVIDED = "carrier metadata"
+SENDER_SOURCE_BODY = "parsed from the message body"
+SENDER_SOURCE_IMAGE = "read from the image"
 
 
 def analyze_message(message: Message) -> dict:
@@ -92,13 +108,22 @@ def analyze_message(message: Message) -> dict:
         images_present=bool(message.images or fetched_images),
     )
 
-    layer3 = lookup_sender(parts["sender_id"])
+    # --- Layer 3: the sender, from metadata, the body, or failing both the image
+    sender_id, sender_source, sender_from_image = _resolve_sender(
+        provided=message.sender,
+        parsed=parts["sender_id"],
+        layer4=layer4,
+    )
+
+    layer3 = lookup_sender(sender_id)
     fusion = fuse(layer1, layer2, layer3)
 
     return {
         "input": {
             "raw": parts["raw"],
-            "sender_id": parts["sender_id"],
+            "sender_id": sender_id,
+            "sender_source": sender_source,
+            "sender_from_image": sender_from_image,
             "text": parts["text"],
             "urls": parts["urls"],
             "channel": message.channel,  # metadata for the reader; no layer uses it
@@ -122,6 +147,96 @@ def analyze_sms(raw_sms: str, sender_id: str = None) -> dict:
     only addition is a layer4_image section reporting that there was no image.
     """
     return analyze_message(Message.from_sms(raw_sms, sender_id=sender_id))
+
+
+def _resolve_sender(provided: Optional[str], parsed: Optional[str],
+                    layer4: Dict) -> tuple:
+    """
+    Decide which sender ID layer 3 is given, and where it came from.
+
+    Returns (sender_id, source, from_image), where `from_image` is the winning
+    candidate dict when the image supplied it and None otherwise.
+
+    Precedence - strongest evidence first, and the image is last for a reason:
+
+      1. an explicitly supplied sender    - carrier metadata, not a guess
+      2. a header parsed off the body     - someone typed it as part of the text
+      3. a header read off the image      - OCR of a screenshot, which can
+                                            misread a character, and a misread
+                                            character is exactly what the
+                                            impersonation rule looks for
+
+    The image is consulted ONLY when the first two produced nothing, so no
+    existing input path changes behaviour: a text-only message, or one with a
+    sender in the form field, resolves exactly as it did before.
+    """
+    if provided and str(provided).strip():
+        return str(provided).strip(), SENDER_SOURCE_PROVIDED, None
+
+    if parsed:
+        return parsed, SENDER_SOURCE_BODY, None
+
+    candidate = _sender_from_images(layer4)
+    if candidate is not None:
+        return candidate["sender_id"], SENDER_SOURCE_IMAGE, candidate
+
+    return None, None, None
+
+
+def _sender_from_images(layer4: Dict) -> Optional[Dict]:
+    """
+    The best sender header visible at the top of any attached image, or None.
+
+    Works per image, off `layer4["results"]`, rather than off the aggregated
+    ocr_lines: these rules are POSITIONAL - "the header is near the top" - and
+    the top of the second image sits in the middle of the flattened list, where
+    that test means nothing.
+
+    A degraded or empty image contributes no candidate, for the same reason it
+    contributes no text and no URLs. A header is six characters with no
+    redundancy in it; if OCR could not hold a whole message together, it cannot
+    be trusted to have held those six.
+
+    Choosing between candidates:
+
+      1. shape tier       - how hard the shape is to produce by accident
+      2. known to layer 3 - within one tier, prefer a candidate the register
+                            actually recognises (registered, a near-miss of a
+                            brand, or an impossible shape) over one it has
+                            nothing to say about. Only used as a TIE-BREAK, not
+                            as the primary key: promoting a recognised
+                            candidate over a better-shaped one would let a
+                            stoplist miss that happens to be a real header beat
+                            the actual sender sitting on the line below it.
+      3. position         - earlier image, then higher line
+    """
+    candidates: List[Dict] = []
+    for position, result in enumerate(layer4.get("results") or [], 1):
+        if result.get("ocr_degraded") or result.get("ocr_empty"):
+            continue
+        for candidate in extraction.sender_candidates_from_lines(
+                result.get("ocr_lines") or []):
+            candidates.append(dict(candidate, image=position))
+
+    if not candidates:
+        return None
+
+    def rank(candidate: Dict) -> tuple:
+        status = lookup_sender(candidate["sender_id"])["status"]
+        unrecognised = status in (STATUS_UNKNOWN, STATUS_MISSING)
+        return (
+            extraction.SENDER_TIER_ORDER.index(candidate["tier"]),
+            1 if unrecognised else 0,
+            candidate["image"],
+            candidate["line_index"],
+        )
+
+    best = min(candidates, key=rank)
+    best["alternatives"] = [
+        c["sender_id"] for c in sorted(candidates, key=rank)
+        if c["sender_id"] != best["sender_id"]
+    ]
+    return best
 
 
 def _usable_ocr(layer4: Dict) -> str:
@@ -260,6 +375,13 @@ def format_report(result: dict) -> str:
     lines.append("INCOMING SMS")
     lines.append("=" * 62)
     lines.append(f"  Sender ID : {inp['sender_id'] or '(not provided)'}")
+    if inp.get("sender_source"):
+        origin = inp["sender_source"]
+        from_image = inp.get("sender_from_image")
+        if from_image:
+            origin += (f" - line {from_image['line_index']} of image "
+                       f"{from_image['image']}, matched as: {from_image['tier']}")
+        lines.append(f"  Sender via: {origin}")
     lines.append(f"  Text      : {inp['text']}")
     lines.append(f"  URLs      : {', '.join(inp['urls']) if inp['urls'] else '(none found)'}")
     if inp.get("images_attached"):
@@ -373,13 +495,104 @@ def format_report(result: dict) -> str:
         # the evidence, and hiding the disagreement would misrepresent both.
         lines.append(f"  (the fusion model on its own said: {fz['model_label']})")
     lines.append(f"  Confidence : {fz['confidence'].upper()} - {fz['layers_used']} of 3 layers contributed")
-    lines.append("")
-    lines.append("  Why:")
-    for reason in fz["reasons"]:
-        lines.append(f"    - {reason}")
+
+    lines.extend(_explanation_lines(fz))
     lines.append("=" * 62)
 
     return "\n".join(lines)
+
+
+def _explanation_lines(fusion: dict) -> list:
+    """
+    The verdict's structured account, as fixed-width text.
+
+    Three parts, in the order a reader needs them: the paragraph, the arithmetic
+    that produced the score, and the rules that were checked beside the model.
+    Falls back to the flat `reasons` list if `explanation` is somehow absent, so
+    an older cached result still prints something.
+    """
+    explanation = fusion.get("explanation")
+    if not explanation:
+        out = ["", "  Why:"]
+        out.extend(f"    - {reason}" for reason in fusion.get("reasons", []))
+        return out
+
+    lines = ["", "  WHY THIS VERDICT", "  " + "-" * 60]
+    lines.extend(_wrap(explanation["summary"], width=58, indent="  "))
+
+    lines.append("")
+    lines.append("  HOW THE SCORE WAS BUILT   (log-odds; they sum exactly)")
+    lines.append("  " + "-" * 60)
+    baseline = explanation["baseline"]
+    lines.append(f"    {'baseline, every layer silent':<34}"
+                 f"{baseline['logit']:+8.3f}   score {baseline['score']:.4f}")
+
+    for entry in explanation["layers"]:
+        if not entry["contributed"]:
+            lines.append(f"    {entry['name']:<34}{'   --   ':>8}   "
+                         f"did not contribute")
+            continue
+
+        measured = ("" if entry["score"] is None
+                    else f"measured {entry['score']:.3f}")
+        lines.append(f"    {entry['name']:<34}{entry['contribution']:+8.3f}   "
+                     f"{measured}")
+        lines.extend(_wrap(
+            f"{entry['direction']}, {entry['share']:.0%} of all movement; "
+            f"without this layer the score is {entry['score_without']:.4f}"
+            + ("  <- DECISIVE: removing it flips the verdict"
+               if entry["decisive"] else ""),
+            width=54, indent="      ", hanging="      "))
+
+    arithmetic = explanation["arithmetic"]
+    lines.append("    " + "-" * 56)
+    lines.append(f"    {'final':<34}{arithmetic['logit']:+8.3f}   "
+                 f"score {arithmetic['score']:.4f}")
+    lines.extend(_wrap(explanation["decision"], width=54, indent="    ",
+                       hanging="    "))
+
+    lines.append("")
+    lines.append("  WHAT EACH LAYER FOUND")
+    lines.append("  " + "-" * 60)
+    for entry in explanation["layers"]:
+        headline = entry["finding"] or entry["absence_reason"]
+        lines.extend(_wrap(f"{entry['name']}: {headline}", width=56,
+                           indent="    ", hanging="      "))
+        for detail in entry["details"]:
+            lines.extend(_wrap(detail, width=52, indent="        - ",
+                               hanging="          "))
+        if entry.get("arithmetic_text"):
+            lines.extend(_wrap(entry["arithmetic_text"], width=52,
+                               indent="        = ", hanging="          "))
+
+    lines.append("")
+    lines.append("  RULES CHECKED BESIDE THE MODEL")
+    lines.append("  " + "-" * 60)
+    for rule in explanation["rules"]:
+        marker = "!" if rule["fired"] else " "
+        lines.extend(_wrap(f"{marker} {rule['name']}: {rule['effect']}", width=56,
+                           indent="    ", hanging="      "))
+
+    lines.append("")
+    confidence = explanation["confidence"]
+    lines.extend(_wrap(
+        f"Confidence {confidence['level'].upper()} - "
+        f"{confidence['layers_used']} of {confidence['layers_total']} layers. "
+        f"{confidence['basis'][0].upper()}{confidence['basis'][1:]}.", width=58, indent="  "))
+    return lines
+
+
+def _wrap(text: str, width: int, indent: str, hanging: str = None) -> list:
+    """
+    Soft-wrap one paragraph for the fixed-width report.
+
+    textwrap rather than a hand-rolled loop would pull in no dependency at all,
+    so it is used - this helper exists only to apply the report's own indent
+    conventions, including a hanging indent for continuation lines.
+    """
+    continuation = hanging if hanging is not None else indent
+    wrapped = textwrap.wrap(text, width=width) or [""]
+    return [indent + wrapped[0]] + [continuation + line for line in wrapped[1:]]
 
 
 def _fmt(value: Optional[float]) -> str:

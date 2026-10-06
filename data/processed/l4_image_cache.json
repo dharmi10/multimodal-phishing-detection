@@ -1,27 +1,23 @@
 {
-  "version": "3",
+  "version": "4",
   "entries": {
-    "1339f1f53d600722ade35e0e9f6be9f7a3e823af792410e10118547d10f61773": {
-      "qr_urls": [],
-      "qr_payment_payloads": [],
-      "qr_other_payloads": [],
-      "ocr_text": "r ) MeridianBank Dear Customer, your MeridianBank account ending 4417 has been temporarily suspended due to incomplete KYC verification. Complete your KYC before 22/09/2026 to avoid permanent closure of your account. meribank-kyc.co.in/verify",
-      "ocr_confidence": 93.90322580645162,
-      "ocr_token_count": 29,
-      "ocr_empty": false,
-      "ocr_degraded": false,
-      "image_score": 0.0,
-      "width": 1200,
-      "height": 628,
-      "notes": [],
-      "error": null
-    },
     "98a6e3a3126e435bfde6c5f164a5715f0517d397f7ceccb2b67395d53bc84358": {
       "qr_urls": [],
       "qr_payment_payloads": [],
       "qr_other_payloads": [],
       "ocr_text": "10:45 78% VM-MERIBNK 724193 is your One Time Password for the transaction of Rs 2,450.00 at MERIDIAN RETAIL. Valid for 10 minutes. Do not share this OTP with anyone, including bank staff. - MeridianBank 10:42 AM Text message",
-      "ocr_confidence": 95.23684210526316,
+      "ocr_lines": [
+        "10:45 78%",
+        "VM-MERIBNK",
+        "724193 is your One Time Password for the",
+        "transaction of Rs 2,450.00 at MERIDIAN",
+        "RETAIL. Valid for 10 minutes. Do not share",
+        "this OTP with anyone, including bank staff. -",
+        "MeridianBank",
+        "10:42 AM",
+        "Text message"
+      ],
+      "ocr_confidence": 95.02631578947368,
       "ocr_token_count": 27,
       "ocr_empty": false,
       "ocr_degraded": false,
@@ -33,29 +29,21 @@
       ],
       "error": null
     },
-    "a6128003032f73e0d62dae914b19070c438b5de53c1ce9e98dcfdd1b3878f69a": {
-      "qr_urls": [],
-      "qr_payment_payloads": [],
-      "qr_other_payloads": [],
-      "ocr_text": "9:41 82% Payment Received Rs 25,000.00 Credited to your account 4417 Transaction ID MRB2026091844170099 To complete the credit, confirm your UPI PIN at the link below within 10 minutes CONFIRM AND CLAIM meribank-upi.co.in/claim",
-      "ocr_confidence": 95.39393939393939,
-      "ocr_token_count": 27,
-      "ocr_empty": false,
-      "ocr_degraded": false,
-      "image_score": 0.15,
-      "width": 1080,
-      "height": 2400,
-      "notes": [
-        "portrait screenshot proportions (1080x2400, ratio 2.22)"
-      ],
-      "error": null
-    },
     "a5f064359291d23958153398b26831aefff262d88baa513461a20486464b998a": {
       "qr_urls": [],
       "qr_payment_payloads": [],
       "qr_other_payloads": [],
-      "ocr_text": "r ) MeridianBank Savings that keep up with you Open a MeridianBank Advantage Savings Account and earn 7.10% p.a. on balances above Rs 1 lakh. No minimum balance for the first year. Visit any branch or your MeridianBank mobile app to get started. meridianbank.co.in T&C apply. MeridianBank is a fictional institution used for testing.",
-      "ocr_confidence": 94.41509433962264,
+      "ocr_text": "@ MeridianBank Savings that keep up with you Open a MeridianBank Advantage Savings Account and earn 7.10% p.a. on balances above Rs 1 lakh. No minimum balance for the first year. Visit any branch or your MeridianBank mobile app to get started. meridianbank.co.in T&C apply. MeridianBank is a fictional institution used for testing.",
+      "ocr_lines": [
+        "@ MeridianBank",
+        "Savings that keep up with you",
+        "Open a MeridianBank Advantage Savings Account and earn 7.10% p.a. on balances",
+        "above Rs 1 lakh. No minimum balance for the first year. Visit any branch or your",
+        "MeridianBank mobile app to get started.",
+        "meridianbank.co.in",
+        "T&C apply. MeridianBank is a fictional institution used for testing."
+      ],
+      "ocr_confidence": 94.22641509433963,
       "ocr_token_count": 39,
       "ocr_empty": false,
       "ocr_degraded": false,
@@ -67,20 +55,166 @@
       ],
       "error": null
     },
-    "945a00dad2a29aa3653fbdb5c1e60bfa50513d8a891232dfbe9d2c5c61f9f5ed": {
+    "0f2e5ae5e5e74bb0b9023b3b1cdffed70236102597b7d128a158f9701a73f162": {
       "qr_urls": [],
       "qr_payment_payloads": [],
       "qr_other_payloads": [],
-      "ocr_text": ") Bank of India Relationship beyond banking Ref. No :VKY'C/MSCS/ IY26 Notice for Customer regarding to update your KYC Immediately. Dear Customer, Your Bank of India Account will be suspended today. Because your previous month Aadhar&Pan \"VIDEO KYC\" not updated, Please immediately call our Bank of India officer. Mr Ashutosh Singh. Bank of India ould like to clarify that although we encourage our consumer's to always keep updated. Now you update your KYC by just calling our Bank of India helpline number :- To update your KYC call our Bank of India helpline number :- Yours Sincerely. \u00a9 0798 056 2905 Mrs, AEPALIWAL General Manager (HR)",
-      "ocr_confidence": 93.33333333333333,
-      "ocr_token_count": 88,
+      "ocr_text": "10:45 GV AB 78% < AX-MERIBNK Ne Dear Customer, your MeridianBank account ending 4417 has been temporarily suspended due to incomplete KYC verification. Please complete your KYC before 22/09/2026 to avoid service interruption. Verify now: meribank-kyc.co.in/verify - MeridianBank 10:42 AM + Text message \u00a9",
+      "ocr_lines": [
+        "10:45 GV AB 78%",
+        "< AX-MERIBNK Ne",
+        "Dear Customer, your MeridianBank",
+        "account ending 4417 has been",
+        "temporarily suspended due to incomplete",
+        "KYC verification. Please complete your",
+        "KYC before 22/09/2026 to avoid service",
+        "interruption.",
+        "Verify now: meribank-kyc.co.in/verify",
+        "- MeridianBank",
+        "10:42 AM",
+        "+ Text message \u00a9"
+      ],
+      "ocr_confidence": 92.95238095238095,
+      "ocr_token_count": 33,
       "ocr_empty": false,
       "ocr_degraded": false,
       "image_score": 0.15,
-      "width": 904,
-      "height": 1280,
+      "width": 842,
+      "height": 1867,
       "notes": [
-        "densely packed with text (76 tokens per megapixel) - the message body is inside the picture"
+        "portrait screenshot proportions (842x1867, ratio 2.22)"
+      ],
+      "error": null
+    },
+    "bd38a963745309b37bd45f7ffa548ff7582b25f0e613382470e3f100705dacf2": {
+      "qr_urls": [],
+      "qr_payment_payloads": [],
+      "qr_other_payloads": [],
+      "ocr_text": "10:45 GVAB 78% < _ AX-MERIBNK X Dear Customer, your MeridianBank account ending 4417 has been temporarily suspended due to incomplete KYC verification. Please complete your KYC before 22/09/2026 to avoid service interruption. Verify now: meribank-kyc.co.in/verify - MeridianBank 10:42 AM + Text message \u00a9 >",
+      "ocr_lines": [
+        "10:45 GVAB 78%",
+        "< _ AX-MERIBNK X",
+        "Dear Customer, your MeridianBank",
+        "account ending 4417 has been",
+        "temporarily suspended due to incomplete",
+        "KYC verification. Please complete your",
+        "KYC before 22/09/2026 to avoid service",
+        "interruption.",
+        "Verify now: meribank-kyc.co.in/verify",
+        "- MeridianBank",
+        "10:42 AM",
+        "+ Text message \u00a9 >"
+      ],
+      "ocr_confidence": 86.70454545454545,
+      "ocr_token_count": 34,
+      "ocr_empty": false,
+      "ocr_degraded": false,
+      "image_score": 0.15,
+      "width": 842,
+      "height": 1867,
+      "notes": [
+        "portrait screenshot proportions (842x1867, ratio 2.22)"
+      ],
+      "error": null
+    },
+    "ad72ed56cd3900220d05d7dab90e77be99ca24810ff14bc48764366bad87cb72": {
+      "qr_urls": [],
+      "qr_payment_payloads": [],
+      "qr_other_payloads": [],
+      "ocr_text": "10:4 GV Ae 78% \u20ac \u00a9) AX-MERIBNK Us KYC verification. Rlease complete your arvice interruption. Verify now: - MeridianBa 0;42 AM + Text message \u00a9",
+      "ocr_lines": [
+        "10:4 GV Ae 78%",
+        "\u20ac \u00a9) AX-MERIBNK Us",
+        "KYC verification. Rlease complete your",
+        "arvice",
+        "interruption.",
+        "Verify now:",
+        "- MeridianBa",
+        "0;42 AM",
+        "+ Text message \u00a9"
+      ],
+      "ocr_confidence": 80.95833333333333,
+      "ocr_token_count": 13,
+      "ocr_empty": false,
+      "ocr_degraded": true,
+      "image_score": 0.15,
+      "width": 842,
+      "height": 1867,
+      "notes": [
+        "portrait screenshot proportions (842x1867, ratio 2.22)",
+        "OCR text is degraded (13 tokens, floor is 20) - text from this image is not being used"
+      ],
+      "error": null
+    },
+    "1339f1f53d600722ade35e0e9f6be9f7a3e823af792410e10118547d10f61773": {
+      "qr_urls": [],
+      "qr_payment_payloads": [],
+      "qr_other_payloads": [],
+      "ocr_text": "@ MeridianBank Dear Customer, your MeridianBank account ending 4417 has been temporarily suspended due to incomplete KYC verification. Complete your KYC before 22/09/2026 to avoid permanent closure of your account. meribank-kyc.co.in/verify",
+      "ocr_lines": [
+        "@ MeridianBank",
+        "Dear Customer, your MeridianBank account ending 4417 has been temporarily",
+        "suspended due to incomplete KYC verification. Complete your KYC before 22/09/2026",
+        "to avoid permanent closure of your account.",
+        "meribank-kyc.co.in/verify"
+      ],
+      "ocr_confidence": 93.54838709677419,
+      "ocr_token_count": 29,
+      "ocr_empty": false,
+      "ocr_degraded": false,
+      "image_score": 0.0,
+      "width": 1200,
+      "height": 628,
+      "notes": [],
+      "error": null
+    },
+    "a6128003032f73e0d62dae914b19070c438b5de53c1ce9e98dcfdd1b3878f69a": {
+      "qr_urls": [],
+      "qr_payment_payloads": [],
+      "qr_other_payloads": [],
+      "ocr_text": "9:41 82% Payment Received Rs 25,000.00 Credited to your account 4417 Transaction ID MRB2026091844170099 To complete the credit, confirm your UPI PIN at the link below within 10 minutes CONFIRM AND CLAIM meribank-upi.co.in/claim",
+      "ocr_lines": [
+        "9:41 82%",
+        "Payment Received",
+        "Rs 25,000.00",
+        "Credited to your account 4417",
+        "Transaction ID",
+        "MRB2026091844170099",
+        "To complete the credit, confirm your",
+        "UPI PIN at the link below within 10 minutes",
+        "CONFIRM AND CLAIM",
+        "meribank-upi.co.in/claim"
+      ],
+      "ocr_confidence": 95.27272727272727,
+      "ocr_token_count": 27,
+      "ocr_empty": false,
+      "ocr_degraded": false,
+      "image_score": 0.15,
+      "width": 1080,
+      "height": 2400,
+      "notes": [
+        "portrait screenshot proportions (1080x2400, ratio 2.22)"
+      ],
+      "error": null
+    },
+    "85343f12d45aa4005d2baae892ef85b8d6570f540f7177064708527c921c0d02": {
+      "qr_urls": [
+        "https://qrfy.io/W_Il14VQVE"
+      ],
+      "qr_payment_payloads": [],
+      "qr_other_payloads": [],
+      "ocr_text": "",
+      "ocr_lines": [],
+      "ocr_confidence": 0.0,
+      "ocr_token_count": 0,
+      "ocr_empty": true,
+      "ocr_degraded": false,
+      "image_score": 0.35,
+      "width": 1024,
+      "height": 1024,
+      "notes": [
+        "image contains 1 QR/barcode symbol",
+        "no text found in this image"
       ],
       "error": null
     },
@@ -91,6 +225,7 @@
       "qr_payment_payloads": [],
       "qr_other_payloads": [],
       "ocr_text": "",
+      "ocr_lines": [],
       "ocr_confidence": 0.0,
       "ocr_token_count": 0,
       "ocr_empty": true,
@@ -101,6 +236,44 @@
       "notes": [
         "image contains 1 QR/barcode symbol",
         "no text found in this image"
+      ],
+      "error": null
+    },
+    "945a00dad2a29aa3653fbdb5c1e60bfa50513d8a891232dfbe9d2c5c61f9f5ed": {
+      "qr_urls": [],
+      "qr_payment_payloads": [],
+      "qr_other_payloads": [],
+      "ocr_text": "e Bank of India Relationship beyond banking Ref. No : VKY'C/MSCS/ IY26 Notice for Customer regarding to update your KYC Immediately. Dear Customer, Your Bank of India Account will be suspended today. Because your previous month Aadhar&Pan \"VIDEO KYC\" not updated, Please immediately call our Bank of India officer. Mr Ashutosh Singh. Bank of India ould like to clarify that although we encourage our consumer's to always keep updated. Now you update your KYC by just calling our Bank of India helpline number :- To update your KYC call our Bank of India helpline number :- Yours Sincerely. \u00a9 0798 056 2905 Mrs. AEPACIWAL General Manager (HR)",
+      "ocr_lines": [
+        "e",
+        "Bank of India",
+        "Relationship beyond banking",
+        "Ref. No : VKY'C/MSCS/ IY26",
+        "Notice for Customer regarding to update your",
+        "KYC Immediately.",
+        "Dear Customer, Your Bank of India Account will be suspended",
+        "today. Because your previous month Aadhar&Pan \"VIDEO KYC\"",
+        "not updated, Please immediately call our Bank of India officer. Mr",
+        "Ashutosh Singh.",
+        "Bank of India ould like to clarify that although we encourage",
+        "our consumer's to always keep updated.",
+        "Now you update your KYC by just calling our Bank of India helpline",
+        "number :-",
+        "To update your KYC call our Bank of India helpline number :-",
+        "Yours Sincerely.",
+        "\u00a9 0798 056 2905",
+        "Mrs. AEPACIWAL",
+        "General Manager (HR)"
+      ],
+      "ocr_confidence": 92.5607476635514,
+      "ocr_token_count": 88,
+      "ocr_empty": false,
+      "ocr_degraded": false,
+      "image_score": 0.15,
+      "width": 904,
+      "height": 1280,
+      "notes": [
+        "densely packed with text (76 tokens per megapixel) - the message body is inside the picture"
       ],
       "error": null
     }

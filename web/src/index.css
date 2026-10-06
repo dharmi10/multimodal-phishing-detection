@@ -1,0 +1,53 @@
+@import "tailwindcss";
+
+/* Evidence Ledger. Colour and type are tokens here, so every component uses
+   the same ink, paper and risk colours and none of them is typed twice. */
+@theme {
+  --color-paper: #f4f6f4;
+  --color-surface: #fbfcfb;
+  --color-ink: #17202a;
+  --color-muted: #55616b;
+  --color-rule: #d3dad6;
+  --color-tint: #e8eeeb;
+
+  --color-risk: #b42318;
+  --color-risk-tint: #fbe9e7;
+  --color-ok: #0e6b5c;
+  --color-ok-tint: #e3f1ee;
+  --color-warn: #8a5a00;
+  --color-warn-tint: #faf1dc;
+
+  --font-display: "Newsreader", Georgia, serif;
+  --font-sans: "IBM Plex Sans", system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+}
+
+:root {
+  color-scheme: light;
+}
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 4.5rem;
+}
+
+body {
+  background: var(--color-paper);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  font-size: 1rem;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Visible focus for keyboard users, on every control. */
+:focus-visible {
+  outline: 2px solid var(--color-ink);
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
